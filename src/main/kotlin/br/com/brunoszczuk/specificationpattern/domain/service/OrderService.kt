@@ -8,15 +8,20 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import java.math.BigDecimal
 
 @Service
 class OrderService(val promotionRules: List<PromotionRule>) {
-    fun insert(order: Order): Pair<String?, Double> {
-        val ruleAccepted = promotionRules
+    fun insert(order: Order): OrderResponse {
+        val rulesAccepted = promotionRules
             .filter { it.specification.isSatisfiedBy(order) && it.active }
-            .maxByOrNull { it.discount }
 
-        return ruleAccepted?.let { it.javaClass.simpleName to it.discount } ?: (null to 0.0)
+        return OrderResponse(
+            rulesAccepted
+                .map { it.javaClass.simpleName to it.discount }
+                .toMutableList(),
+            rulesAccepted.sumOf { it.discount }
+        )
     }
 }
 
@@ -24,7 +29,9 @@ class OrderService(val promotionRules: List<PromotionRule>) {
 @RequestMapping("/api/orders")
 class OrderController(val orderService: OrderService) {
     @PostMapping
-    fun insert(@RequestBody order: Order): ResponseEntity<Pair<String?, Double>> {
+    fun insert(@RequestBody order: Order): ResponseEntity<OrderResponse> {
         return ResponseEntity.ok(orderService.insert(order))
     }
 }
+
+data class OrderResponse(val rules : List<Pair<String?, BigDecimal>>, val totalDiscount: BigDecimal)

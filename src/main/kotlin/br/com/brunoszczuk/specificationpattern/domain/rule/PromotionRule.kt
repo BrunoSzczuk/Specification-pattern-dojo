@@ -4,15 +4,16 @@ import br.com.brunoszczuk.specificationpattern.domain.service.RuleToggleService
 import br.com.brunoszczuk.specificationpattern.domain.specifications.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
+import java.math.BigDecimal
 
 
-const val ELECTRONIC_PRODUCT_DISCOUNT = 0.05
-const val JUNIOR_SELLER_DISCOUNT = 0.05
-const val NEW_CLIENT_DISCOUNT = 0.1
-const val SENIOR_SELLER_DISCOUNT = 0.15
+val ELECTRONIC_PRODUCT_DISCOUNT: BigDecimal = BigDecimal.valueOf(0.05)
+val JUNIOR_SELLER_DISCOUNT: BigDecimal = BigDecimal.valueOf(0.05)
+val NEW_CLIENT_DISCOUNT: BigDecimal = BigDecimal.valueOf(0.1)
+val SENIOR_SELLER_DISCOUNT: BigDecimal = BigDecimal.valueOf(0.15)
 
 
-open class PromotionRule(val specification: PromotionSpecification, val discount: Double) {
+open class PromotionRule(val specification: PromotionSpecification, val discount: BigDecimal) {
     @Autowired
     lateinit var ruleToggleService: RuleToggleService
     val active: Boolean get() = ruleToggleService.isRuleActive(this.javaClass.simpleName)
