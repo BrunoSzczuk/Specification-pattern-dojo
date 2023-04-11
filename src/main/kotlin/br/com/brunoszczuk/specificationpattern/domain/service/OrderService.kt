@@ -17,14 +17,14 @@ class OrderService(val promotionRules: List<PromotionRule>) {
             .filter { it.specification.isSatisfiedBy(order) && it.active }
 
         return OrderResponse(
-            rulesAccepted
+            rules = rulesAccepted
                 .map { it.javaClass.simpleName to it.discount }
                 .toMutableList(),
-            rulesAccepted.sumOf { it.discount }
+            totalDiscount = rulesAccepted.sumOf { it.discount }
         )
     }
 }
-
+data class OrderResponse(val rules : List<Pair<String?, BigDecimal>>, val totalDiscount: BigDecimal)
 @RestController
 @RequestMapping("/api/orders")
 class OrderController(val orderService: OrderService) {
@@ -33,5 +33,3 @@ class OrderController(val orderService: OrderService) {
         return ResponseEntity.ok(orderService.insert(order))
     }
 }
-
-data class OrderResponse(val rules : List<Pair<String?, BigDecimal>>, val totalDiscount: BigDecimal)
